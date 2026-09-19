@@ -3,13 +3,14 @@ package edu.umg.programacion2.proyecto.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.time.LocalDate;
+import java.time.Period;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import edu.umg.programacion2.proyecto.dao.EmpleadoDAO;
 import edu.umg.programacion2.proyecto.modelo.Empleado;
 
 public class VentanaPrincipal extends JFrame {
-	
     private EmpleadoDAO empleadoDAO;
     private JTable tablaEmpleados;
     private DefaultTableModel modeloTabla;
@@ -28,7 +29,7 @@ public class VentanaPrincipal extends JFrame {
     public VentanaPrincipal() {
         empleadoDAO = new EmpleadoDAO();
         setTitle("Gestión de Empleados");
-        setSize(950, 500); 
+        setSize(1050, 500); // Lo hacemos un poco más ancho para la nueva columna
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
@@ -71,7 +72,7 @@ public class VentanaPrincipal extends JFrame {
         panel.add(chkActivo);
         panel.add(btnGuardar);
         panel.add(btnEliminar);
-        panel.add(new JLabel("")); // Espacio en blanco para cuadrar la grilla
+        panel.add(new JLabel(""));
         panel.add(btnLimpiar);
 
         return panel;
@@ -81,7 +82,8 @@ public class VentanaPrincipal extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Listado de Empleados"));
 
-        String[] columnas = {"ID", "Nombre", "Departamento", "Salario", "Fecha", "Activo", "Correo"};
+        // 1. MEJORA: Agregamos la columna "Antigüedad" al final del arreglo
+        String[] columnas = {"ID", "Nombre", "Departamento", "Salario", "Fecha", "Activo", "Correo", "Antigüedad"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -118,6 +120,9 @@ public class VentanaPrincipal extends JFrame {
         Object correoValor = modeloTabla.getValueAt(fila, 6);
         txtCorreo.setText(correoValor != null ? correoValor.toString() : "");
 
+        // Nota: No extraemos la antigüedad porque no hay un campo de texto para ella, 
+        // ya que es solo calculada para mostrarse en la tabla.
+
         btnGuardar.setText("Actualizar");
         btnEliminar.setEnabled(true);
     }
@@ -126,12 +131,22 @@ public class VentanaPrincipal extends JFrame {
         modeloTabla.setRowCount(0); 
         try {
             java.util.List<Empleado> lista = empleadoDAO.ListarTodos();
+            LocalDate hoy = LocalDate.now(); // Fecha actual del sistema
+
             for (Empleado emp : lista) {
+                // 2. MEJORA: Calculamos la antigüedad en años
+                Period periodo = Period.between(emp.getFechaContratacion(), hoy);
+                String antiguedad = periodo.getYears() + " años";
+
                 Object[] fila = {
-                    emp.getId(), emp.getNombreCompleto(), emp.getDepartamento(),
-                    emp.getSalarioMensual(), emp.getFechaContratacion(),
+                    emp.getId(), 
+                    emp.getNombreCompleto(), 
+                    emp.getDepartamento(),
+                    emp.getSalarioMensual(), 
+                    emp.getFechaContratacion(),
                     emp.isActivo() ? "Activo" : "Inactivo",
-                    emp.getCorreoElectronico() 
+                    emp.getCorreoElectronico(),
+                    antiguedad // NUEVO DATO CALCULADO AL VUELO
                 };
                 modeloTabla.addRow(fila); 
             }
@@ -148,19 +163,16 @@ public class VentanaPrincipal extends JFrame {
         String fechaStr = txtFecha.getText().trim();
         boolean activo = chkActivo.isSelected();
 
-        // 1. Validar vacíos
         if (nombre.isEmpty() || depto.isEmpty() || correo.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Nombre, departamento y correo son obligatorios.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // 2. Validar formato de correo usando expresión regular
         if (!correo.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-zA-Z]{2,}$")) {
-            JOptionPane.showMessageDialog(this, "El correo electrónico no es válido. Debe tener el formato: usuario@dominio.com", "Aviso", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "El correo electrónico no es válido.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // 3. Validar salario
         double salario = 0;
         try {
             salario = Double.parseDouble(salarioStr);
@@ -173,7 +185,6 @@ public class VentanaPrincipal extends JFrame {
             return;
         }
 
-        // 4. Validar fecha
         java.time.LocalDate fecha = null;
         try {
             fecha = java.time.LocalDate.parse(fechaStr);
@@ -186,7 +197,6 @@ public class VentanaPrincipal extends JFrame {
             return;
         }
 
-        // 5. Guardar
         Empleado empleado = new Empleado(nombre, depto, salario, fecha, activo, correo);
         
         try {
