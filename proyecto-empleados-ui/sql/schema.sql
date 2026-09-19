@@ -15,3 +15,8 @@ USE empresa_db;
  -- DEFAULT TRUE significa que al hacer un INSERT sin este campo, entrará como activo (1).
  activo BOOLEAN DEFAULT TRUE
  );
+
+ 
+ -- CREAMOS LA NUEVA COLUMNA EXTRA LLAMADA CORREO ELECTRONICO
+ USE empresa_db;
+ALTER TABLE empleados ADD COLUMN correo VARCHAR(100);

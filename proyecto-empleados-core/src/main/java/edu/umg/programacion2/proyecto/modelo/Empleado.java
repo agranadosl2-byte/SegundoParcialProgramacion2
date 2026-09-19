@@ -11,6 +11,7 @@ public class Empleado {
 	private double salarioMensual; 
 	private LocalDate fechaContratacion;
 	private boolean activo;
+	private String correoElectronico;
 	
 	
 	//Constructor vacio, necesario para alguna herramienta
@@ -22,19 +23,20 @@ public class Empleado {
 	//Contructor sin id (ideal para crear un empleado nuevo ya que mysql pone el id automaticamente)
 
 	public Empleado(String nombreCompleto, String departamento, double salarioMensual, LocalDate fechaContratacion,
-			boolean activo) {
+			boolean activo, String correoElectronico) {
 		super();
 		this.nombreCompleto = nombreCompleto;
 		this.departamento = departamento;
 		this.salarioMensual = salarioMensual;
 		this.fechaContratacion = fechaContratacion;
 		this.activo = activo;
+		this.correoElectronico = correoElectronico;
 	}
 	
 	//Contructor con todos los datos, ideal para leer todos los datos de la base de datos
 
 	public Empleado(int id, String nombreCompleto, String departamento, double salarioMensual,
-			LocalDate fechaContratacion, boolean activo) {
+			LocalDate fechaContratacion, boolean activo, String correoElectronico) {
 		super();
 		this.id = id;
 		this.nombreCompleto = nombreCompleto;
@@ -42,6 +44,7 @@ public class Empleado {
 		this.salarioMensual = salarioMensual;
 		this.fechaContratacion = fechaContratacion;
 		this.activo = activo;
+		this.correoElectronico = correoElectronico;
 	}
 	
 	//Generar getters and setters ideal para acceder y modificar los datos
@@ -93,15 +96,26 @@ public class Empleado {
 	public void setActivo(boolean activo) {
 		this.activo = activo;
 	}
+	
+	public String getCorreoElectronico() {
+		return correoElectronico;
+	}
+
+	public void setCorreoElectronico(String correoElectronico) {
+		this.correoElectronico = correoElectronico;
+	}
 
 	//Metodo to string para imprimir todos los datos por consola si es necesario
-	 
 	@Override
 	public String toString() {
 		return "Empleado [id=" + id + ", nombreCompleto=" + nombreCompleto + ", departamento=" + departamento
 				+ ", salarioMensual=" + salarioMensual + ", fechaContratacion=" + fechaContratacion + ", activo="
-				+ activo + "]";
+				+ activo + ", correoElectronico=" + correoElectronico + "]";
 	}
+
+	//Metodo to string para imprimir todos los datos por consola si es necesario
+	
+	
 	
 	
 	

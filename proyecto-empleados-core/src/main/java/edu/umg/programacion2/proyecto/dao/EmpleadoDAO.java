@@ -30,7 +30,7 @@ public class EmpleadoDAO {
 	//1. Crear 
 	
 	public Empleado crear(Empleado empleado) throws SQLException {
-		String sql = "INSERT INTO empleados (nombre_completo, departamento, salario_mensual, fecha_contratacion, activo) VALUES (?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO empleados (nombre_completo, departamento, salario_mensual, fecha_contratacion, activo, correo) VALUES (?, ?, ?, ?, ?, ?)";
 		
 		//Usamos RETURN_GENERATED_KEYS para recuperar el ID que mysql le asigne
 		
@@ -43,6 +43,7 @@ public class EmpleadoDAO {
 			//Convertimos el localdate de java al date de SQL
 			stmt.setDate(4, Date.valueOf(empleado.getFechaContratacion()));
 			stmt.setBoolean(5, empleado.isActivo());
+			stmt.setString(6, empleado.getCorreoElectronico());
 			
 			stmt.executeUpdate();
 			
@@ -76,7 +77,8 @@ public class EmpleadoDAO {
 							rs.getString("departamento"),
 							rs.getDouble("salario_mensual"),
 							rs.getDate("fecha_contratacion").toLocalDate(),
-							rs.getBoolean("activo"));
+							rs.getBoolean("activo"),
+							rs.getString("correo"));
 					lista.add(emp);
 				}
 				
@@ -87,10 +89,6 @@ public class EmpleadoDAO {
 		}
 		
 		//3. Buscar por ID 
-		
-	
-		
-	
 		
 		public Optional<Empleado> buscarPorId(int id) throws SQLException { 
 			String sql = "SELECT * FROM empleados WHERE id = ?";
@@ -105,7 +103,8 @@ public class EmpleadoDAO {
 								rs.getString("departamento"),
 								rs.getDouble("salario_mensual"),
 								rs.getDate("fecha_contratacion").toLocalDate(),
-								rs.getBoolean("activo"));
+								rs.getBoolean("activo"),
+								rs.getString("correo"));
 						return Optional.of(emp);
 					}
 				}
@@ -116,7 +115,7 @@ public class EmpleadoDAO {
 		//Actualizar
 		
 		public boolean actualizar(Empleado empleado) throws SQLException{
-			String sql = "UPDATE empleados SET nombre_completo = ?, departamento = ?, salario_mensual = ?, fecha_contratacion = ?, activo = ? WHERE id = ?";
+			String sql = "UPDATE empleados SET nombre_completo = ?, departamento = ?, salario_mensual = ?, fecha_contratacion = ?, activo = ?, correo = ? WHERE id = ?";
 			try(Connection conn = getConnection();
 					PreparedStatement stmt = conn.prepareStatement(sql)){
 				stmt.setString(1, empleado.getNombreCompleto());
@@ -124,7 +123,8 @@ public class EmpleadoDAO {
 				stmt.setDouble(3, empleado.getSalarioMensual());
 				stmt.setDate(4, Date.valueOf(empleado.getFechaContratacion()));
 				stmt.setBoolean(5, empleado.isActivo());
-				stmt.setInt(6, empleado.getId());
+				stmt.setString(6, empleado.getCorreoElectronico());
+				stmt.setInt(7, empleado.getId());
 				
 				int filasAfectadas = stmt.executeUpdate();
 				return filasAfectadas > 0;
